@@ -43,6 +43,34 @@
       height: 300px;
       margin-top: 30px;
     }
+    .tooltip {
+      position: relative;
+      display: inline-block;
+      cursor: help;
+      border-bottom: 1px dotted black;
+    }
+
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 220px;
+      background-color: #555;
+      color: #fff;
+      text-align: center;
+      border-radius: 5px;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -110px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
@@ -58,6 +86,11 @@
     <a onclick="showDistribution('Student\'s t')">Student's t</a>
     <a onclick="showDistribution('F-distribution')">F-distribution</a>
     <a onclick="showDistribution('Geometric')">Geometric</a>
+    <a onclick="showDistribution('Bernoulli')">Bernoulli</a>
+    <a onclick="showDistribution('Negative Binomial')">Negative Binomial</a>
+    <a onclick="showDistribution('Standard Normal')">Standard Normal</a>
+    <a onclick="showDistribution('Multinomial')">Multinomial</a>
+    <a onclick="showDistribution('Logistic')">Logistic</a>
   </div>
   <div class="content">
     <div id="distributionContent">
@@ -145,6 +178,41 @@
         applicable: "Use when modeling the number of failures before a first success.",
         equation: "P(X = k) = (1 - p)^{k - 1} p",
         data: { labels: [1,2,3,4,5,6,7,8,9,10], values: [0.3, 0.21, 0.147, 0.1029, 0.072, 0.0504, 0.0353, 0.0247, 0.0173, 0.0121] }
+      },
+      "Bernoulli": {
+        type: "Discrete",
+        description: "Models a single trial with two possible outcomes: success or failure.",
+        applicable: "Use when modeling binary outcomes (e.g., success/failure, yes/no).",
+        equation: "P(X = x) = p^x (1 - p)^{1 - x}, \\text{ where } x \\in \\{0, 1\\}",
+        data: { labels: [0, 1], values: [0.7, 0.3] } // Example probabilities
+      },
+      "Negative Binomial": {
+        type: "Discrete",
+        description: "Models the number of trials needed to achieve a fixed number of successes in independent Bernoulli trials.",
+        applicable: "Use when modeling the number of failures before a fixed number of successes.",
+        equation: "P(X = k) = \\binom{k + r - 1}{k} p^r (1 - p)^k",
+        data: { labels: [...Array(11).keys()], values: [0.05, 0.1, 0.15, 0.2, 0.18, 0.12, 0.08, 0.05, 0.03, 0.02, 0.01] } // Example probabilities
+      },
+      "Standard Normal": {
+        type: "Continuous",
+        description: "A special case of the Normal distribution with mean 0 and standard deviation 1.",
+        applicable: "Use when data is standardized to have a mean of 0 and a standard deviation of 1.",
+        equation: "f(x) = \\frac{1}{\\sqrt{2\\pi}} e^{-\\frac{x^2}{2}}",
+        data: { labels: [-3, -2, -1, 0, 1, 2, 3], values: [0.004, 0.054, 0.242, 0.398, 0.242, 0.054, 0.004] } // Example probabilities
+      },
+      "Multinomial": {
+        type: "Discrete",
+        description: "Generalization of the Binomial distribution for multiple categories.",
+        applicable: "Use when modeling outcomes of experiments with more than two categories.",
+        equation: "P(X_1 = x_1, ..., X_k = x_k) = \\frac{n!}{x_1! x_2! ... x_k!} p_1^{x_1} p_2^{x_2} ... p_k^{x_k}",
+        data: { labels: ["Category 1", "Category 2", "Category 3"], values: [0.4, 0.35, 0.25] } // Example probabilities
+      },
+      "Logistic": {
+        type: "Continuous",
+        description: "Models data with a sigmoid-shaped cumulative distribution function.",
+        applicable: "Use for modeling growth or probabilities in logistic regression.",
+        equation: "f(x) = \\frac{e^{-(x-\\mu)/s}}{s(1+e^{-(x-\\mu)/s})^2}",
+        data: { labels: [-3, -2, -1, 0, 1, 2, 3], values: [0.045, 0.090, 0.196, 0.250, 0.196, 0.090, 0.045] } // Example probabilities
       }
     };
 
@@ -163,7 +231,7 @@
           <p><strong>Type:</strong> ${data.type}</p>
           <p><strong>Description:</strong> ${data.description}</p>
           <p><strong>Applicable When:</strong> ${data.applicable}</p>
-          <p><strong>Equation:</strong> <br><span>\\(${data.equation}\\)</span></p>
+          <p><strong class="tooltip" title="For discrete distributions, PDF means Probability Distribution Function, which is interchangeable with PMF for Probability Mass Function. For continuous distributions, PDF is Probability Density Function.">PDF:</strong> <br><span>\\(${data.equation}\\)</span></p>
           <canvas id="distributionChart"></canvas>
         </div>
       `;
