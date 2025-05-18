@@ -75,21 +75,24 @@
 </head>
 <body>
   <div class="sidebar">
+    <div><strong>Discrete Distributions</strong></div>
+    <a onclick="showDistribution('Bernoulli')">Bernoulli</a>
     <a onclick="showDistribution('Binomial')">Binomial</a>
+    <a onclick="showDistribution('Geometric')">Geometric</a>
+    <a onclick="showDistribution('Negative Binomial')">Negative Binomial</a>
     <a onclick="showDistribution('Poisson')">Poisson</a>
-    <a onclick="showDistribution('Normal (Gaussian)')">Normal (Gaussian)</a>
+    <a onclick="showDistribution('Multinomial')">Multinomial</a>
+
+    <div style="margin-top: 20px;"><strong>Continuous Distributions</strong></div>
     <a onclick="showDistribution('Uniform')">Uniform</a>
+    <a onclick="showDistribution('Normal (Gaussian)')">Normal (Gaussian)</a>
+    <a onclick="showDistribution('Standard Normal')">Standard Normal</a>
     <a onclick="showDistribution('Exponential')">Exponential</a>
-    <a onclick="showDistribution('Beta')">Beta</a>
     <a onclick="showDistribution('Gamma')">Gamma</a>
     <a onclick="showDistribution('Chi-squared')">Chi-squared</a>
     <a onclick="showDistribution('Student\'s t')">Student's t</a>
     <a onclick="showDistribution('F-distribution')">F-distribution</a>
-    <a onclick="showDistribution('Geometric')">Geometric</a>
-    <a onclick="showDistribution('Bernoulli')">Bernoulli</a>
-    <a onclick="showDistribution('Negative Binomial')">Negative Binomial</a>
-    <a onclick="showDistribution('Standard Normal')">Standard Normal</a>
-    <a onclick="showDistribution('Multinomial')">Multinomial</a>
+    <a onclick="showDistribution('Beta')">Beta</a>
     <a onclick="showDistribution('Logistic')">Logistic</a>
   </div>
   <div class="content">
@@ -104,114 +107,146 @@
     const distributions = {
       "Binomial": {
         type: "Discrete",
-        description: "Models number of successes in fixed number of independent Bernoulli trials.",
+        description: "Number of successes in fixed trials",
         applicable: "Use when outcomes are binary and trials are fixed and independent.",
-        equation: "\\binom{n}{k} p^k (1 - p)^{n - k}",
+        pdf: "\\binom{n}{k} p^k (1 - p)^{n - k}",
+        cdf: "P(X \\leq k) = \\sum_{i=0}^k \\binom{n}{i} p^i (1-p)^{n-i}",
+        example: "Counting how many heads in 10 coin flips",
         data: { labels: [...Array(11).keys()], values: [0.00098, 0.0098, 0.0439, 0.117, 0.205, 0.246, 0.205, 0.117, 0.0439, 0.0098, 0.00098] }
       },
       "Poisson": {
         type: "Discrete",
-        description: "Models count of events in a fixed interval with constant average rate.",
+        description: "Independent event counts in fixed time",
         applicable: "Use when events occur independently and randomly over time or space.",
-        equation: "P(k; \\lambda) = \\frac{\\lambda^k \\cdot e^{-\\lambda}}{k!}",
+        pdf: "P(k; \\lambda) = \\frac{\\lambda^k \\cdot e^{-\\lambda}}{k!}",
+        cdf: "P(X \\leq k) = \\sum_{i=0}^k \\frac{\\lambda^i e^{-\\lambda}}{i!}",
+        example: "Number of emails received in an hour",
         data: { labels: [...Array(11).keys()], values: [0.0067, 0.0337, 0.0842, 0.1404, 0.1755, 0.1755, 0.1462, 0.1044, 0.0652, 0.0362, 0.0181] }
       },
       "Normal (Gaussian)": {
         type: "Continuous",
-        description: "Models symmetric, bell-shaped distributions of real values.",
+        description: "Bell curve of averages",
         applicable: "Use when data is centered around the mean with symmetric distribution.",
-        equation: "f(x) = \\frac{1}{\\sigma \\sqrt{2\\pi}} \\cdot e^{-\\frac{1}{2} \\left(\\frac{x - \\mu}{\\sigma}\\right)^2}",
+        pdf: "f(x) = \\frac{1}{\\sigma \\sqrt{2\\pi}} \\cdot e^{-\\frac{1}{2} \\left(\\frac{x - \\mu}{\\sigma}\\right)^2}",
+        cdf: "F(x) = \\frac{1}{2} \\[1 + \\text{erf}\\left(\\frac{x-\\mu}{\\sigma\\sqrt{2}}\\right)\\]",
+        example: "Heights of adult humans",
         data: { labels: [-2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2], values: [0.054, 0.129, 0.242, 0.352, 0.398, 0.352, 0.242, 0.129, 0.054] }
       },
       "Uniform": {
-        type: "Continuous",
-        description: "All values in an interval are equally likely.",
+        type: "Discrete or Continuous",
+        description: "Flat chance across range",
         applicable: "Use when outcomes are uniformly distributed across a range.",
-        equation: "f(x) = \\frac{1}{b - a} \\text{ for } a \\leq x \\leq b",
+        pdf: "f(x) = \\frac{1}{b - a} \\text{ for } a \\leq x \\leq b",
+        cdf: "F(x) = \\frac{x-a}{b-a} \\text{ for } a \\leq x \\leq b",
+        example: "Picking a random number between 0 and 1",
         data: { labels: [0,1,2,3,4,5,6,7,8,9], values: Array(10).fill(0.1) }
       },
       "Exponential": {
         type: "Continuous",
-        description: "Models time between events in a Poisson process.",
+        description: "Wait time between events",
         applicable: "Use when modeling waiting times between independent events.",
-        equation: "f(x) = \\lambda e^{-\\lambda x}",
+        pdf: "f(x) = \\lambda e^{-\\lambda x}",
+        cdf: "F(x) = 1 - e^{-\\lambda x}",
+        example: "Time until next earthquake",
         data: { labels: [0,1,2,3,4,5,6,7,8,9], values: [1.0, 0.606, 0.368, 0.223, 0.135, 0.082, 0.050, 0.030, 0.018, 0.011] }
       },
       "Beta": {
         type: "Continuous",
-        description: "Models probabilities or proportions between 0 and 1.",
+        description: "Flexible 0–1 probabilities",
         applicable: "Use for Bayesian inference and modeling probabilities.",
-        equation: "f(x) = \\frac{x^{\\alpha-1}(1-x)^{\\beta-1}}{B(\\alpha, \\beta)}",
+        pdf: "f(x) = \\frac{x^{\\alpha-1}(1-x)^{\\beta-1}}{B(\\alpha, \\beta)}",
+        cdf: "F(x) = I_x(\\alpha, \\beta)",
+        example: "Modeling a probability like click-through rate",
         data: { labels: [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9], values: [0.5, 0.9, 1.2, 1.5, 1.6, 1.5, 1.2, 0.9, 0.5] }
       },
       "Gamma": {
         type: "Continuous",
-        description: "Generalization of the exponential distribution.",
+        description: "Wait time for k events",
         applicable: "Use for modeling waiting times for multiple Poisson events.",
-        equation: "f(x) = \\frac{x^{k-1}e^{-x/\\theta}}{\\theta^k\\Gamma(k)}",
+        pdf: "f(x) = \\frac{x^{k-1}e^{-x/\\theta}}{\\theta^k\\Gamma(k)}",
+        cdf: "F(x) = \\frac{1}{\\Gamma(k)} \\gamma(k, \\frac{x}{\\theta})",
+        example: "Time until 3 earthquakes occur",
         data: { labels: [0,1,2,3,4,5,6,7,8,9], values: [0,0.03,0.09,0.14,0.17,0.18,0.16,0.13,0.1,0.07] }
       },
       "Chi-squared": {
         type: "Continuous",
-        description: "Sum of squares of standard normal variables.",
+        description: "Sum of squares of normals",
         applicable: "Use for hypothesis testing and model evaluation.",
-        equation: "f(x) = \\frac{1}{2^{k/2}\\Gamma(k/2)}x^{k/2 - 1}e^{-x/2}",
+        pdf: "f(x) = \\frac{1}{2^{k/2}\\Gamma(k/2)}x^{k/2 - 1}e^{-x/2}",
+        cdf: "F(x) = \\frac{1}{\\Gamma(k/2)} \\gamma(k/2, x/2)",
+        example: "Testing goodness-of-fit in a survey",
         data: { labels: [0,1,2,3,4,5,6,7,8,9], values: [0,0.15,0.22,0.21,0.18,0.14,0.10,0.07,0.05,0.03] }
       },
       "Student's t": {
         type: "Continuous",
-        description: "Similar to normal but with heavier tails.",
+        description: "Small-sample bell curve",
         applicable: "Use for inference when sample size is small.",
-        equation: "f(t) = \\frac{\\Gamma((\\nu+1)/2)}{\\sqrt{\\nu\\pi}\\Gamma(\\nu/2)}(1+\\frac{t^2}{\\nu})^{-\\frac{\\nu+1}{2}}",
+        pdf: "f(t) = \\frac{\\Gamma((\\nu+1)/2)}{\\sqrt{\\nu\\pi}\\Gamma(\\nu/2)}(1+\\frac{t^2}{\\nu})^{-\\frac{\\nu+1}{2}}",
+        cdf: "Complex and involves the incomplete beta function.",
+        example: "Estimating a mean with a small sample",
         data: { labels: [-3,-2,-1,0,1,2,3], values: [0.05, 0.1, 0.25, 0.4, 0.25, 0.1, 0.05] }
       },
       "F-distribution": {
         type: "Continuous",
-        description: "Ratio of two scaled chi-squared distributions.",
+        description: "Variance ratio test",
         applicable: "Use in ANOVA and variance comparisons.",
-        equation: "f(x) = \\text{complex formula involving B()}",
+        pdf: "f(x) = \\text{complex formula involving B()}",
+        cdf: "Complex and involves the regularized incomplete beta function.",
+        example: "Comparing variances in ANOVA",
         data: { labels: [0,1,2,3,4,5,6,7,8,9], values: [0.01, 0.08, 0.15, 0.20, 0.18, 0.14, 0.10, 0.07, 0.04, 0.02] }
       },
       "Geometric": {
         type: "Discrete",
-        description: "Models number of trials until the first success in repeated independent Bernoulli trials.",
+        description: "Trials until first success",
         applicable: "Use when modeling the number of failures before a first success.",
-        equation: "P(X = k) = (1 - p)^{k - 1} p",
+        pdf: "P(X = k) = (1 - p)^{k - 1} p",
+        cdf: "P(X \\leq k) = 1 - (1-p)^k",
+        example: "How many coin flips until the first heads",
         data: { labels: [1,2,3,4,5,6,7,8,9,10], values: [0.3, 0.21, 0.147, 0.1029, 0.072, 0.0504, 0.0353, 0.0247, 0.0173, 0.0121] }
       },
       "Bernoulli": {
         type: "Discrete",
-        description: "Models a single trial with two possible outcomes: success or failure.",
+        description: "Single trial: success or fail",
         applicable: "Use when modeling binary outcomes (e.g., success/failure, yes/no).",
-        equation: "P(X = x) = p^x (1 - p)^{1 - x}, \\text{ where } x \\in \\{0, 1\\}",
+        pdf: "P(X = x) = p^x (1 - p)^{1 - x}, \\text{ where } x \\in \\{0, 1\\}",
+        cdf: "P(X \\leq x) = \\begin{cases} 1 - p & x < 1 \\\\ 1 & x \\geq 1 \\end{cases}",
+        example: "Flipping a coin once (success = heads)",
         data: { labels: [0, 1], values: [0.7, 0.3] } // Example probabilities
       },
       "Negative Binomial": {
         type: "Discrete",
-        description: "Models the number of trials needed to achieve a fixed number of successes in independent Bernoulli trials.",
+        description: "Trials until k successes",
         applicable: "Use when modeling the number of failures before a fixed number of successes.",
-        equation: "P(X = k) = \\binom{k + r - 1}{k} p^r (1 - p)^k",
+        pdf: "P(X = k) = \\binom{k + r - 1}{k} p^r (1 - p)^k",
+        cdf: "P(X \\leq k) = \\sum_{i=0}^k \\binom{i+r-1}{i} p^r (1-p)^i",
+        example: "How many coin flips to get 3 heads",
         data: { labels: [...Array(11).keys()], values: [0.05, 0.1, 0.15, 0.2, 0.18, 0.12, 0.08, 0.05, 0.03, 0.02, 0.01] } // Example probabilities
       },
       "Standard Normal": {
         type: "Continuous",
-        description: "A special case of the Normal distribution with mean 0 and standard deviation 1.",
+        description: "Normal with 0 mean, 1 SD",
         applicable: "Use when data is standardized to have a mean of 0 and a standard deviation of 1.",
-        equation: "f(x) = \\frac{1}{\\sqrt{2\\pi}} e^{-\\frac{x^2}{2}}",
+        pdf: "f(x) = \\frac{1}{\\sqrt{2\\pi}} e^{-\\frac{x^2}{2}}",
+        cdf: "F(x) = \\frac{1}{2} \\[1 + \\text{erf}\\left(\\frac{x}{\\sqrt{2}}\\right)\\]",
+        example: "Z-scores in a test",
         data: { labels: [-3, -2, -1, 0, 1, 2, 3], values: [0.004, 0.054, 0.242, 0.398, 0.242, 0.054, 0.004] } // Example probabilities
       },
       "Multinomial": {
         type: "Discrete",
-        description: "Generalization of the Binomial distribution for multiple categories.",
+        description: "Multi-category binomial",
         applicable: "Use when modeling outcomes of experiments with more than two categories.",
-        equation: "P(X_1 = x_1, ..., X_k = x_k) = \\frac{n!}{x_1! x_2! ... x_k!} p_1^{x_1} p_2^{x_2} ... p_k^{x_k}",
+        pdf: "P(X_1 = x_1, ..., X_k = x_k) = \\frac{n!}{x_1! x_2! ... x_k!} p_1^{x_1} p_2^{x_2} ... p_k^{x_k}",
+        cdf: "Complex and depends on cumulative probabilities of categories.",
+        example: "Rolling a die 10 times and counting each face",
         data: { labels: ["Category 1", "Category 2", "Category 3"], values: [0.4, 0.35, 0.25] } // Example probabilities
       },
       "Logistic": {
         type: "Continuous",
-        description: "Models data with a sigmoid-shaped cumulative distribution function.",
+        description: "S-curve for classification",
         applicable: "Use for modeling growth or probabilities in logistic regression.",
-        equation: "f(x) = \\frac{e^{-(x-\\mu)/s}}{s(1+e^{-(x-\\mu)/s})^2}",
+        pdf: "f(x) = \\frac{e^{-(x-\\mu)/s}}{s(1+e^{-(x-\\mu)/s})^2}",
+        cdf: "F(x) = \\frac{1}{1 + e^{-\\frac{x-\\mu}{s}}}",
+        example: "Predicting pass/fail from test scores",
         data: { labels: [-3, -2, -1, 0, 1, 2, 3], values: [0.045, 0.090, 0.196, 0.250, 0.196, 0.090, 0.045] } // Example probabilities
       }
     };
@@ -229,9 +264,11 @@
         <div class="distribution-name">${name}</div>
         <div class="distribution-description">
           <p><strong>Type:</strong> ${data.type}</p>
-          <p><strong>Description:</strong> ${data.description}</p>
-          <p><strong>Applicable When:</strong> ${data.applicable}</p>
-          <p><strong class="tooltip" title="For discrete distributions, PDF means Probability Distribution Function, which is interchangeable with PMF for Probability Mass Function. For continuous distributions, PDF is Probability Density Function.">PDF:</strong> <br><span>\\(${data.equation}\\)</span></p>
+          <p><strong>What:</strong> ${data.description}</p>
+          <p><strong>When:</strong> ${data.applicable}</p>
+          <p><strong>Example:</strong> ${data.example}</p>
+          <p><strong class="tooltip" title="Probability Density Function for continuous. Probability Mass Function for discrete.">PDF:</strong> <span>\\(${data.pdf}\\)</span></p>
+          <p><strong>CDF:</strong> <span>\\(${data.cdf}\\)</span></p>
           <canvas id="distributionChart"></canvas>
         </div>
       `;
