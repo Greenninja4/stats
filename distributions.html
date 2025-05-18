@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Statistical Distributions</title>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+    }
+    .sidebar {
+      width: 200px;
+      background-color: #f4f4f4;
+      padding: 20px;
+      height: 100vh;
+      overflow-y: auto;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    }
+    .sidebar a {
+      display: block;
+      margin-bottom: 10px;
+      text-decoration: none;
+      color: #333;
+      cursor: pointer;
+    }
+    .content {
+      flex-grow: 1;
+      padding: 40px;
+    }
+    .distribution-name {
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .distribution-description {
+      margin-top: 10px;
+      font-size: 16px;
+    }
+    #distributionChart {
+      max-width: 600px;
+      height: 300px;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <a onclick="showDistribution('Binomial')">Binomial</a>
+    <a onclick="showDistribution('Poisson')">Poisson</a>
+    <a onclick="showDistribution('Normal (Gaussian)')">Normal (Gaussian)</a>
+    <a onclick="showDistribution('Uniform')">Uniform</a>
+    <a onclick="showDistribution('Exponential')">Exponential</a>
+    <a onclick="showDistribution('Beta')">Beta</a>
+    <a onclick="showDistribution('Gamma')">Gamma</a>
+    <a onclick="showDistribution('Chi-squared')">Chi-squared</a>
+    <a onclick="showDistribution('Student\'s t')">Student's t</a>
+    <a onclick="showDistribution('F-distribution')">F-distribution</a>
+    <a onclick="showDistribution('Geometric')">Geometric</a>
+  </div>
+  <div class="content">
+    <div id="distributionContent">
+      <div class="distribution-name">Select a distribution</div>
+      <div class="distribution-description"></div>
+      <canvas id="distributionChart"></canvas>
+    </div>
+  </div>
+
+  <script>
+    const distributions = {
+      "Binomial": {
+        type: "Discrete",
+        description: "Models number of successes in fixed number of independent Bernoulli trials.",
+        applicable: "Use when outcomes are binary and trials are fixed and independent.",
+        equation: "\\binom{n}{k} p^k (1 - p)^{n - k}",
+        data: { labels: [...Array(11).keys()], values: [0.00098, 0.0098, 0.0439, 0.117, 0.205, 0.246, 0.205, 0.117, 0.0439, 0.0098, 0.00098] }
+      },
+      "Poisson": {
+        type: "Discrete",
+        description: "Models count of events in a fixed interval with constant average rate.",
+        applicable: "Use when events occur independently and randomly over time or space.",
+        equation: "P(k; \\lambda) = \\frac{\\lambda^k \\cdot e^{-\\lambda}}{k!}",
+        data: { labels: [...Array(11).keys()], values: [0.0067, 0.0337, 0.0842, 0.1404, 0.1755, 0.1755, 0.1462, 0.1044, 0.0652, 0.0362, 0.0181] }
+      },
+      "Normal (Gaussian)": {
+        type: "Continuous",
+        description: "Models symmetric, bell-shaped distributions of real values.",
+        applicable: "Use when data is centered around the mean with symmetric distribution.",
+        equation: "f(x) = \\frac{1}{\\sigma \\sqrt{2\\pi}} \\cdot e^{-\\frac{1}{2} \\left(\\frac{x - \\mu}{\\sigma}\\right)^2}",
+        data: { labels: [-2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2], values: [0.054, 0.129, 0.242, 0.352, 0.398, 0.352, 0.242, 0.129, 0.054] }
+      },
+      "Uniform": {
+        type: "Continuous",
+        description: "All values in an interval are equally likely.",
+        applicable: "Use when outcomes are uniformly distributed across a range.",
+        equation: "f(x) = \\frac{1}{b - a} \\text{ for } a \\leq x \\leq b",
+        data: { labels: [0,1,2,3,4,5,6,7,8,9], values: Array(10).fill(0.1) }
+      },
+      "Exponential": {
+        type: "Continuous",
+        description: "Models time between events in a Poisson process.",
+        applicable: "Use when modeling waiting times between independent events.",
+        equation: "f(x) = \\lambda e^{-\\lambda x}",
+        data: { labels: [0,1,2,3,4,5,6,7,8,9], values: [1.0, 0.606, 0.368, 0.223, 0.135, 0.082, 0.050, 0.030, 0.018, 0.011] }
+      },
+      "Beta": {
+        type: "Continuous",
+        description: "Models probabilities or proportions between 0 and 1.",
+        applicable: "Use for Bayesian inference and modeling probabilities.",
+        equation: "f(x) = \\frac{x^{\\alpha-1}(1-x)^{\\beta-1}}{B(\\alpha, \\beta)}",
+        data: { labels: [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9], values: [0.5, 0.9, 1.2, 1.5, 1.6, 1.5, 1.2, 0.9, 0.5] }
+      },
+      "Gamma": {
+        type: "Continuous",
+        description: "Generalization of the exponential distribution.",
+        applicable: "Use for modeling waiting times for multiple Poisson events.",
+        equation: "f(x) = \\frac{x^{k-1}e^{-x/\\theta}}{\\theta^k\\Gamma(k)}",
+        data: { labels: [0,1,2,3,4,5,6,7,8,9], values: [0,0.03,0.09,0.14,0.17,0.18,0.16,0.13,0.1,0.07] }
+      },
+      "Chi-squared": {
+        type: "Continuous",
+        description: "Sum of squares of standard normal variables.",
+        applicable: "Use for hypothesis testing and model evaluation.",
+        equation: "f(x) = \\frac{1}{2^{k/2}\\Gamma(k/2)}x^{k/2 - 1}e^{-x/2}",
+        data: { labels: [0,1,2,3,4,5,6,7,8,9], values: [0,0.15,0.22,0.21,0.18,0.14,0.10,0.07,0.05,0.03] }
+      },
+      "Student's t": {
+        type: "Continuous",
+        description: "Similar to normal but with heavier tails.",
+        applicable: "Use for inference when sample size is small.",
+        equation: "f(t) = \\frac{\\Gamma((\\nu+1)/2)}{\\sqrt{\\nu\\pi}\\Gamma(\\nu/2)}(1+\\frac{t^2}{\\nu})^{-\\frac{\\nu+1}{2}}",
+        data: { labels: [-3,-2,-1,0,1,2,3], values: [0.05, 0.1, 0.25, 0.4, 0.25, 0.1, 0.05] }
+      },
+      "F-distribution": {
+        type: "Continuous",
+        description: "Ratio of two scaled chi-squared distributions.",
+        applicable: "Use in ANOVA and variance comparisons.",
+        equation: "f(x) = \\text{complex formula involving B()}",
+        data: { labels: [0,1,2,3,4,5,6,7,8,9], values: [0.01, 0.08, 0.15, 0.20, 0.18, 0.14, 0.10, 0.07, 0.04, 0.02] }
+      },
+      "Geometric": {
+        type: "Discrete",
+        description: "Models number of trials until the first success in repeated independent Bernoulli trials.",
+        applicable: "Use when modeling the number of failures before a first success.",
+        equation: "P(X = k) = (1 - p)^{k - 1} p",
+        data: { labels: [1,2,3,4,5,6,7,8,9,10], values: [0.3, 0.21, 0.147, 0.1029, 0.072, 0.0504, 0.0353, 0.0247, 0.0173, 0.0121] }
+      }
+    };
+
+    let chart;
+
+    function showDistribution(name) {
+      const data = distributions[name];
+      if (!data) {
+        alert(`No data available for distribution: ${name}`);
+        return;
+      }
+      const container = document.getElementById('distributionContent');
+      container.innerHTML = `
+        <div class="distribution-name">${name}</div>
+        <div class="distribution-description">
+          <p><strong>Type:</strong> ${data.type}</p>
+          <p><strong>Description:</strong> ${data.description}</p>
+          <p><strong>Applicable When:</strong> ${data.applicable}</p>
+          <p><strong>Equation:</strong> <br><span>\\(${data.equation}\\)</span></p>
+          <canvas id="distributionChart"></canvas>
+        </div>
+      `;
+
+      if (window.MathJax) MathJax.typesetPromise();
+
+      const ctx = document.getElementById('distributionChart').getContext('2d');
+      if (chart) chart.destroy();
+      chart = new Chart(ctx, {
+        type: data.type === 'Discrete' ? 'bar' : 'line',
+        data: {
+          labels: data.data.labels,
+          datasets: [{
+            label: `${name} Distribution`,
+            data: data.data.values,
+            borderColor: 'blue',
+            backgroundColor: 'lightblue',
+            fill: false
+          }]
+        },
+        options: {
+          scales: {
+            x: { title: { display: true, text: 'x' } },
+            y: { title: { display: true, text: 'Probability Density' }, beginAtZero: true }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
