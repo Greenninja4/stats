@@ -5,7 +5,9 @@ observedRolls = [1,2,3,4,5,6]
 
 numSides = 6
 numRolls = len(observedRolls)
-degreesOfFreedom = numRolls - 1
+# Degrees of freedom for a goodness-of-fit test should be based on the
+# number of categories, not the sample size.
+degreesOfFreedom = numSides - 1
 pValue = 0.05 
 
 def expectedRollCounts(numRolls, numSides):
